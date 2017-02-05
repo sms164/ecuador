@@ -1,0 +1,260 @@
+---
+title: "Ecudor Data Exploration"
+author: "Sarah Sullivan"
+output: html_document
+---
+
+
+```{r set_knitr_chunk_options, echo = F, warning=F, message=F}
+rm(list = ls())
+
+library(knitr)
+library(markdown)
+opts_chunk$set(message=FALSE, echo = F,
+               warning = F,fig.height = 5, fig.width = 10, tidy = F)
+
+
+#School
+#opts_knit$set(root.dir = "H:/Ecuador/Code")
+#Laptop
+#opts_knit$set(root.dir = "/Users/sarahsullivan/Box Sync/Emory/Thesis/Code")
+```
+
+```{r libs}
+library(ggplot2)
+library(psych)
+library("Hmisc")
+library("reshape2")
+library("plyr")
+library(data.table)
+```
+
+
+
+```{r import}
+setwd("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code")
+
+ecu<-read.table("/Users/sarahsullivan/Box Sync/NSF_Ecuador/Intervillage Datasets/Surv_red1.csv", sep = ",", quote = "", header=TRUE)
+save(ecu, file="EcuIndiv.RData")
+
+load("EcuIndiv.RData")
+
+```
+
+```{r data_expl}
+describe(ecu)
+describe(ecu$WEEK)
+#176 weeks
+#5897 unique individuals
+#21 Communities 
+  #Communities range in size from 28 to 872
+  #Number of people in each community varies between years, usually at three different timepoints (though that varies as well)
+  #Largest communities are: 
+    #number 5 (between 717 and 872 individuals), 
+    #followed by #4 with 445 to 553 individuals
+  #Smallest communities are:
+    #number 14 with 28-33 individuals
+    #followed by 1 with 52-54 and 12 with 30-78
+  #Potential Typical Communities
+    #13: median number of people (122), but the number of people varies highly, and given the transitory nature this seems like subsequent analyses will be difficult
+    #21: 121, 129, 152
+    #8: 136, 148, 156
+    #10: 107, 132, 135
+  
+#1151 different households
+  #between 1 and 17 people in a household
+#Illness
+  #0.009202 or 0.92% sick (4944 observations)
+    #Fever 0.004612 or 0.46% had fever (2478 observations)
+    #Diarrhea 0.005079 or 0.51% (2729 observations)
+
+
+ecu2<-unique(ecu[c("comunidad", "num_people_com")])
+ecu3<-ecu2[order(ecu2$num_people_com),]
+ecu4<-ecu[which(ecu$comunidad==8),]
+ecu5<-ecu[order(ecu$WEEK),]
+ecu5<-ecu5[!duplicated(ecu5$ID_individuo), ]
+describe(ecu5)
+
+#Mean age at first data collection 21.64 (missing:604, over 10% problematic)
+  #Negative ages (-.9856)
+    #Need to figure out if there is data associated or if these are missing on other things 
+#Gender 52% male, 48% female (161 missing)
+  #1=male, 2=female
+
+ecu6<-ecu[which(ecu$age<6),]
+ecu7<-ecu6[!duplicated(ecu6$ID_individuo), ]
+ecu8<-ecu[which(ecu$age<=5),]
+ecu9<-ecu8[!duplicated(ecu8$ID_individuo), ]
+
+#Picking Villages:
+  #Check that there is variation within village chosen so that there is signal that we can assess
+  #Make sure there are enough children that its interesting
+  #Check on if its 5 and under or just under 5
+  #Check on the map
+#Crosstabs and Logistics to see what the drivers of disease are since our prevalences are low
+```
+
+
+To save computational time:
+-save as RData set
+-run on citrix
+-drill down on subsets to first understand the data
+  -single village
+  -highest 10% of illness
+  
+Early questions:
+-differential rates of dihr. across:
+  -time, village age, sex, other relevant covariates
+-id people frequently sick and see if the villge is sicker the next week 
+-visualizing patterns in illness over time
+
+Later Questions:
+-village incidence to lag predict other villages
+-distances for spatial analyses
+
+
+```{r compareViltoAll}
+ecu<- ecu[order(ecu$WEEK),] 
+unique<-ecu[!duplicated(ecu$ID_individuo),]
+vill8<-ecu[which(ecu$comunidad==8),]
+uvil8<-vill8[!duplicated(vill8$ID_individuo),]
+vill15<-ecu[which(ecu$comunidad==15),]
+compop<-ecu[unique(ecu$comunidad),]
+
+#compare
+mean(ecu$DIARRHEA)
+mean(unique$DIARRHEA)
+mean(vill8$DIARRHEA)
+mean(uvil8$DIARRHEA)
+
+table(uvil8$WEEK)
+#most people enrolled at first week, some enrollwd at later times
+describe(vill8$ID_individuo)
+#some weird high values, see if they mean anything
+
+ecuid<-ecu$ID_individuo
+ecuid<- ecuid[order(ecuid)] 
+ecuidw<-ecuid[which(ecuid>8888000)]
+ecuid8<-ecuid[which(ecuid>8888000 & ecuid<9999000)]
+ecuid9<-ecuid[which(ecuid>=9999000)]
+describe(ecuidw)
+describe(ecuid8)
+describe(ecuid9)
+
+#2751 weird values with 8888 or 9999 before 3 digit code, 486 unique
+#557 8888 lead, 119 unique
+#2174 9999 lead, 367 unique
+
+#Is there meaning in this?
+
+#returning to looking at the week distribution
+
+hist(ecu$WEEK, breaks=200)
+#Number of observations per week is usually around 3000 with the exception of the first week
+
+hist(vill8$WEEK, breaks=200)
+#Number double for the first week (look into this),
+#Seem to get most people most weeks, sometimes half in the third year weeks 151-154 missing
+#Weeks 45,46,50,51,151,152,153,154 are missing
+
+hist(vill15$WEEK, breaks=200)
+
+par(mfrow=c(3,7))
+wkhist<-by(ecu[,5], ecu$comunidad, function(x) hist(x,breaks=200))
+sapply(wkhist, plot)
+
+sapply()
+
+#Looking at the distribution of samples from each week for each village, they are usually close to the max with some variations (90% by sight)
+obs<-nrow(ecu)
+indiv<-length(unique(ecu$ID_individuo))
+obs/indiv
+#The average number of visits per person x is 91.11 which is much smaller than the number of weeks collected (176). This appears to arise from 
+
+
+st1<-sum(compop$num_people_com)
+obs/st1
+#still low and doesn't take into account new people
+#4614
+
+
+
+```
+
+#Need to reshape visit data wide (outcome=diarrhea)
+###Can use reshape to find average number of visits per person
+
+```{r reshape}
+#Will work with vill8
+Hmisc::describe(vill8)
+v8wide <- dcast.data.table(data.table(vill8), ID_individuo + comunidad ~ WEEK, value.var=list("DIARRHEA"))
+v8w<- as.data.frame(v8wide)
+Hmisc::describe(v8w)
+
+vis<-apply(v8wide[,c(3:166)], 1, function(x) sum(x, na.rm=T))
+dat$comp<-ifelse(is.na(anymiss)==F, 1,0)
+
+
+CD4w$numvis<-apply(CD4w, 1, function(x) (length(which(!is.na(x)))-2)/3)
+CD4w$trt<-apply(CD4w[,17:23], 1, function(x) mean(x,na.rm = T))
+table(CD4w$trt)
+```
+
+
+#Questions for Chris/Phil
+-Is there any meaning in the strange identifiers?
+--#2751 weird values with 8888 or 9999 before 3 digit code, 486 unique
+--#557 8888 lead, 119 unique
+--#2174 9999 lead, 367 unique
+
+```{r v5}
+
+ecu5a<-ecu[which(ecu$comunidad==5),]
+
+ecu5<-ecu5a[order(ecu5a$WEEK),]
+ecu5<-ecu5[!duplicated(ecu5$ID_individuo), ]
+table(ecu5a$num_people_com)
+describe(ecu5a)
+
+#1125 individual people, maximum size at any one point is 872 (at least 253 people leave or are lost) 22%
+```
+
+```{r v5}
+
+ecu4a<-ecu[which(ecu$comunidad==4),]
+
+ecu4<-ecu4a[order(ecu4a$WEEK),]
+ecu4<-ecu4[!duplicated(ecu4$ID_individuo), ]
+table(ecu4a$num_people_com)
+describe(ecu4a)
+
+#Max size: 553
+#Unique: 734
+#at least 181 missing, 25%
+```
+
+```{r v17}
+ecu17a<-ecu[which(ecu$comunidad==17),]
+
+ecu17<-ecu17a[order(ecu17a$WEEK),]
+ecu17<-ecu17[!duplicated(ecu17$ID_individuo), ]
+table(ecu17a$num_people_com)
+describe(ecu17a)
+
+Max: 471
+Unique: 557 
+#at least 86 missing, but that's only 18%
+```
+
+```{r ecumove}
+
+ecumov<-unique(ecu[c("comunidad", "ID_individuo")])
+table(table(ecumov$ID_individuo, ecumov$comunidad))
+
+
+#there is a lot of movement but no people show up in two different villages: perhaps this is the weird 8888/9999 prefixes
+
+#in a way its clean but we may be missing what is happening on an individual level
+
+# very roughly 70% of the time its only one person in a household who is sick at a time

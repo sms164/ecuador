@@ -10,3 +10,10 @@ c<-x^6
 d<-x^7
 
 ab<-x^4+y^5
+
+and<-x^3-y^5
+
+
+for (i in 1:10)  {
+  print("hi")
+}

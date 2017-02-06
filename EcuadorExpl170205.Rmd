@@ -237,7 +237,7 @@ describe(ecu4a)
 ```{r v17}
 ecu17a<-ecu[which(ecu$comunidad==17),]
 
-ecu17<-ecu17a[order(ecu17a$WEEK),]
+ecu17a<-ecu17a[order(ecu17a$WEEK),]
 ecu17<-ecu17[!duplicated(ecu17$ID_individuo), ]
 table(ecu17a$num_people_com)
 describe(ecu17a)
@@ -264,6 +264,7 @@ table(table(ecumov$ID_individuo, ecumov$comunidad))
 ```{r}
 load("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/EcuIndiv.RData")
 ecua<-ecu[!duplicated(ecu$ID_individuo), ]
+ecua<-ecua[order(ecua$ID_individuo),]
 ecua$id2<-as.character(ecua$ID_individuo)
 ecua$id3<-gsub("8888", "", ecua$id2, fixed=T)
 ecua$id4<-gsub("9999", "", ecua$id3, fixed=T)
@@ -278,8 +279,73 @@ describe(ecua$id5)
 
 ```
 
+```{r}
+ecu17<-ecu[which(ecu$comunidad==17),]
+
+ecu17<-ecu17[order(ecu17$WEEK),]
+ecu17a<-ecu17[!duplicated(ecu17$ID_individuo), ]
+describe(ecu17a$ID_individuo)
+
+ecu17a$id2<-as.character(ecu17a$ID_individuo)
+ecu17a$id3<-gsub("8888", "", ecu17a$id2, fixed=T)
+ecu17a$id4<-gsub("9999", "", ecu17a$id3, fixed=T)
+
+describe(ecu17a$id2)
+describe(ecu17a$id3)
+describe(ecu17a$id4)
+ecu17a$id5<-as.numeric(ecu17a$id4)
+describe(ecu17a$id5)
+
+#These are all unique meaning that the 8888/9999 do not occur within their original village
+
+table(ecua$id5,ecua$comunidad)
+  #77 is in both village 3 and 10, and since this should be unique instances it should have been a 9999/8888
+
+
+ecu77<-ecu[which(ecu$ID_individuo==9999077 | ecu$ID_individuo==77 | ecu$ID_individuo==8888077),]
+#Not the same people, since they're recorded in different villages (for about 5 weeks) at the same time. However 8888077 does have some missing info and is only present for a short time, so that might explain some things
+
+```
+
+
+```{r weekinvestigation}
+
+table(table(ecu$ID_individuo))
+hist(table(ecu$ID_individuo))
+
+#can we cut those who are present less than 5 times
+
+ecua<-ecua(sort())
+wksperid<-ddply(ecu, .(ecu$ID_individuo),nrow)
+ecua$wksperid<-wksperid$V1
+
+hist(ecua$wksperid)
+table(ecua$wksperid)
+hist(ecua$WEEK[which(ecua$wksperid<=5)])
+
+
+
+describe(ecua$wksperid[which(ecua$ID_individuo>=8888000)])
+mean(ecua$DIARRHEA[which(ecua$ID_individuo>=8888000)])
+mean(ecu$DIARRHEA[which(ecu$ID_individuo>=8888000)])
+hist()
+
+describe(ecua$wksperid[which(ecua$ID_individuo<8888000)])
+mean(ecua$DIARRHEA[which(ecua$ID_individuo<8888000)])
+mean(ecu$DIARRHEA[which(ecu$ID_individuo<8888000)])
+mean(ecu$DIARRHEA)
+1-nrow(ecu[which(ecu$ID_individuo<8888000),])/nrow(ecu)
+1-mean(ecu$DIARRHEA[which(ecu$ID_individuo<8888000)])/mean(ecu$DIARRHEA)
+
+
+
+```
+
+
+```{r households}
 
 
 
 
 
+```

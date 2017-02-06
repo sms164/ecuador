@@ -21,12 +21,12 @@ opts_chunk$set(message=FALSE, echo = F,
 ```
 
 ```{r libs}
-library(ggplot2)
-library(psych)
+library("ggplot2")
+library("psych")
 library("Hmisc")
 library("reshape2")
 library("plyr")
-library(data.table)
+library("data.table")
 ```
 
 
@@ -37,7 +37,7 @@ setwd("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code")
 ecu<-read.table("/Users/sarahsullivan/Box Sync/NSF_Ecuador/Intervillage Datasets/Surv_red1.csv", sep = ",", quote = "", header=TRUE)
 save(ecu, file="EcuIndiv.RData")
 
-load("EcuIndiv.RData")
+load("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/EcuIndiv.RData")
 
 ```
 
@@ -258,3 +258,28 @@ table(table(ecumov$ID_individuo, ecumov$comunidad))
 #in a way its clean but we may be missing what is happening on an individual level
 
 # very roughly 70% of the time its only one person in a household who is sick at a time
+
+```
+
+```{r}
+load("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/EcuIndiv.RData")
+ecua<-ecu[!duplicated(ecu$ID_individuo), ]
+ecua$id2<-as.character(ecua$ID_individuo)
+ecua$id3<-gsub("8888", "", ecua$id2, fixed=T)
+ecua$id4<-gsub("9999", "", ecua$id3, fixed=T)
+
+describe(ecua$id2)
+describe(ecua$id3)
+describe(ecua$id4)
+ecua$id5<-as.numeric(ecua$id4)
+describe(ecua$id5)
+
+#The 8888 and 9999 leading IDs are indeed already in the dataset with their base IDs. Now checking to seee if this is because of a village change
+
+```
+
+
+
+
+
+

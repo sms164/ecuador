@@ -154,7 +154,6 @@ par(mfrow=c(3,7))
 wkhist<-by(ecu[,5], ecu$comunidad, function(x) hist(x,breaks=200))
 sapply(wkhist, plot)
 
-sapply()
 
 obs<-nrow(ecu)
 indiv<-length(unique(ecu$ID_individuo))
@@ -239,12 +238,12 @@ Village 4
 ecu17a<-ecu[which(ecu$comunidad==17),]
 
 ecu17a<-ecu17a[order(ecu17a$WEEK),]
-ecu17<-ecu17[!duplicated(ecu17$ID_individuo), ]
+ecu17<-ecu17a[!duplicated(ecu17a$ID_individuo), ]
 table(ecu17a$num_people_com)
 describe(ecu17a)
 
-Max: 471
-Unique: 557 
+#Max: 471
+#Unique: 557 
 #at least 86 missing, but that's only 18%
 ```
 
@@ -342,12 +341,12 @@ mean(ecu$DIARRHEA)
 
 
 ```{r village17}
+ecu17<-ecua[which(ecu$comunidad==17),]
 ecu17a<-ecua[which(ecua$comunidad==17),]
 
 
-
-
-
+ecuad<-ecu[!duplicated(ecu$ID_casa), ]
+ecu17ad<-ecu17[!duplicated(ecu17$ID_casa), ]
 
 ```
 

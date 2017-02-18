@@ -425,4 +425,4 @@ distcw$ID_casa==distcw$ID_casa2
 aggwks17<-aggregate(ecu17[,"DIARRHEA"], by=WEEK, FUN=sum)
 
 
-
+```

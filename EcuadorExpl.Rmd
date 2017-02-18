@@ -345,17 +345,84 @@ mean(ecu$DIARRHEA)
 
 
 ```{r village17}
-ecu17<-ecua[which(ecu$comunidad==17),]
+ecu17<-ecu[which(ecu$comunidad==17),]
 ecu17a<-ecua[which(ecua$comunidad==17),]
 
 
 ecuad<-ecu[!duplicated(ecu$ID_casa), ]
 ecu17ad<-ecu17[!duplicated(ecu17$ID_casa), ]
+ecu17ad<-ecu17ad[order(ecu17ad$ID_casa),]
 
-ecu17dis<-read.csv("/Users/sarahsullivan/Box Sync/Emory/Ecuador/DistanceData/17_SurvDataDist.csv")
-save(ecu, file="EcuIndiv.RData")
 ```
 
+```{r distmatChris}
+ecu17dh<-ecu17dis[!duplicated(ecu17dis$ID_casa), ]
+
+#names(ecu17dh)
+
+distm<-ecu17dh[,c(2,47:195)]
+
+matnames<-names(distm)
+matnames<-sort(matnames)
+matnames[151]<-"DISTANCE...1"
+head(matnames)
+
+#Could pull out stuff if I need to but I will save that for another time since other methods willbe faster
+
+
+```
+
+```{r distmatSarah}
+
+earth.dist <- function (long1, lat1, long2, lat2)
+{
+rad <- pi/180
+a1 <- lat1 * rad
+a2 <- long1 * rad
+b1 <- lat2 * rad
+b2 <- long2 * rad
+dlon <- b2 - a2
+dlat <- b1 - a1
+a <- (sin(dlat/2))^2 + cos(a1) * cos(b1) * (sin(dlon/2))^2
+c <- 2 * atan2(sqrt(a), sqrt(1 - a))
+R <- 6378.145
+d <- R * c
+return(d)
+}
+#https://conservationecology.wordpress.com/2013/06/30/distance-between-two-points-in-r/
+
+#GIS hh 1 and 2
+1000*earth.dist(-79.06954, 0.7993030, -79.06957,0.7992739)
+# 4.652355
+###Not Accurate Don't Use
+
+
+#from Chris
+distm[1,134]
+# 4.584152
+
+
+library(geoshpere)
+#Utilizes an elipsoidal method to calculate distance 
+gdistm<-distm(ecu17ad[,c("hh_lon","hh_lat")], fun=distVincentyEllipsoid)
+
+distcw<-data.frame(ID_casa=ecu17ad$ID_casa,mat_ID=c(1:107),ID_casa2=ecu17dh$ID_casa, GIS_FID=ecu17dh$GIS_FID) 
+
+#make sure that the ID_casa matches up for both datasets
+distcw$ID_casa==distcw$ID_casa2
+  #succes
+  
+
+
+#write.csv(gdistm, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/DistanceMatrix17.csv")
+#write.csv(distcw, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/DistCrosswalk17.csv")
+
+
+```
+
+```{r aggregateWkCases}
+
+aggwks17<-aggregate(ecu17[,"DIARRHEA"], by=WEEK, FUN=sum)
 
 
 

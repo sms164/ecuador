@@ -37,6 +37,10 @@ library("data.table")
 #ecu<-read.table("/Users/sarahsullivan/Box Sync/NSF_Ecuador/Intervillage Datasets/Surv_red1.csv", sep = ",", quote = "", header=TRUE)
 #save(ecu, file="EcuIndiv.RData")
 
+#ecu17dis<-read.csv("/Users/sarahsullivan/Box Sync/Emory/Ecuador/DistanceData/17_SurvDataDist.csv")
+#save(ecu17dis, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/Ecu17Dist.RData")
+
+load("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/Ecu17Dist.RData")
 load("/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/EcuIndiv.RData")
 
 ```
@@ -280,7 +284,7 @@ describe(ecua$id5)
 It appeared that the 8888s and 9999s overlapped, but they are in fact seperate individuals. Now checking to seee if this is because of a village change. It doesn't appear that we have any linked data for who these pople are since there's overlap, and there is no way for those IDs to be unique 
 
 
-```{r}
+```{r invest8888}
 ecu17<-ecu[which(ecu$comunidad==17),]
 
 ecu17<-ecu17[order(ecu17$WEEK),]
@@ -348,7 +352,10 @@ ecu17a<-ecua[which(ecua$comunidad==17),]
 ecuad<-ecu[!duplicated(ecu$ID_casa), ]
 ecu17ad<-ecu17[!duplicated(ecu17$ID_casa), ]
 
+ecu17dis<-read.csv("/Users/sarahsullivan/Box Sync/Emory/Ecuador/DistanceData/17_SurvDataDist.csv")
+save(ecu, file="EcuIndiv.RData")
 ```
 
 
-```
+
+

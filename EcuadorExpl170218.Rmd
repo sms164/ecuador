@@ -422,7 +422,6 @@ distcw$ID_casa==distcw$ID_casa2
 
 ```{r aggregateWkCases}
 
-<<<<<<< HEAD
 aggwks17<-aggregate(ecu17[,"DIARRHEA"], by=list(ecu17$WEEK, ecu17$ID_casa), FUN=sum)
 
 hhweekcase17<-dcast(aggwks17, Group.2~Group.1, value.var="x")

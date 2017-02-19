@@ -422,7 +422,11 @@ distcw$ID_casa==distcw$ID_casa2
 
 ```{r aggregateWkCases}
 
-aggwks17<-aggregate(ecu17[,"DIARRHEA"], by=WEEK, FUN=sum)
+aggwks17<-aggregate(ecu17[,"DIARRHEA"], by=list(ecu17$WEEK, ecu17$ID_casa), FUN=sum)
 
+hhweekcase17<-dcast(aggwks17, Group.2~Group.1, value.var="x")
+hhwkcase17<-cbind(hhweekcase17[,2:114],rep(NA, times=107), hhweekcase17[,115:117], rep(NA, times=107), hhweekcase17[,118:121], rep(NA, times=107),hhweekcase17[,122:175])
+
+#write.csv(hhwkcase17, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/WeeklyHouseholdCases17.csv")
 
 ```

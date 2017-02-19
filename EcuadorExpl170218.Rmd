@@ -27,6 +27,7 @@ library("Hmisc")
 library("reshape2")
 library("plyr")
 library("data.table")
+library("geosphere")
 ```
 
 
@@ -401,8 +402,6 @@ return(d)
 distm[1,134]
 # 4.584152
 
-
-library(geoshpere)
 #Utilizes an elipsoidal method to calculate distance 
 gdistm<-distm(ecu17ad[,c("hh_lon","hh_lat")], fun=distVincentyEllipsoid)
 
@@ -412,8 +411,6 @@ distcw<-data.frame(ID_casa=ecu17ad$ID_casa,mat_ID=c(1:107),ID_casa2=ecu17dh$ID_c
 distcw$ID_casa==distcw$ID_casa2
   #succes
   
-
-
 #write.csv(gdistm, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/DistanceMatrix17.csv")
 #write.csv(distcw, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/DistCrosswalk17.csv")
 
@@ -421,6 +418,13 @@ distcw$ID_casa==distcw$ID_casa2
 ```
 
 ```{r aggregateWkCases}
+weekcases17<-aggregate(ecu17[,"DIARRHEA"], by=list(ecu17$WEEK), FUN=sum)
+wkcases17<-rbind(weekcases17[1:113,],c(114,NA), weekcases17[114:116,], c(118,NA), weekcases17[117:120,], c(123,NA),weekcases17[121:174,])
+wkcs17<-wkcases17$x
+```
+
+
+```{r aggWkCaseHouse}
 
 aggwks17<-aggregate(ecu17[,"DIARRHEA"], by=list(ecu17$WEEK, ecu17$ID_casa), FUN=sum)
 
@@ -430,3 +434,13 @@ hhwkcase17<-cbind(hhweekcase17[,2:114],rep(NA, times=107), hhweekcase17[,115:117
 #write.csv(hhwkcase17, file="/Users/sarahsullivan/Box Sync/Emory/Ecuador/Code/WeeklyHouseholdCases17.csv")
 
 ```
+
+###Matrices (cleaned and identified by index for week and household):
+
+Dataset | Description | Dimmensions
+------------- | ------------- | -------------
+wkcs7 | total cases per week | 1x177
+gdistm |      distance matrix for households | 107x107
+hhwkcase17 |  number of cases within households by week | 107x177
+distcw |      crosswalk betweek household ids and household indexes | 4x107
+
